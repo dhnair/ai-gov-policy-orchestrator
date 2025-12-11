@@ -1,0 +1,39 @@
+# --- Core Data Science & Processing ---
+numpy<2  # Required for python -m spacy download en_core_web_lg
+pandas
+networkx
+
+# --- Excel Support (Required by pandas for .xlsx files) ---
+openpyxl
+
+# --- PDF Processing ---
+PyPDF2
+pdfquery
+# 'pdfquery' often relies on 'lxml' for parsing
+lxml
+
+# --- Visualization ---
+pyvis
+
+# --- Privacy & Governance (PII Masking) ---
+presidio-analyzer
+presidio-anonymizer
+# Presidio requires spacy and a downloaded model
+spacy
+
+# --- Vector Database (RAG Memory) ---
+chromadb
+# ChromaDB uses sentence-transformers for embeddings
+sentence-transformers
+
+# --- Web Scraping & APIs ---
+requests
+# This is the correct package for 'from serpapi import GoogleSearch'
+google-search-results
+
+# PDF Generator
+reportlab
+
+# API
+flask
+flask-cors

@@ -1,0 +1,155 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 800px;
+                 background-color: white;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "id": "accountable", "label": "accountable", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "affective", "label": "affective", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "confidence", "label": "confidence", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "normative", "label": "normative", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "rational", "label": "rational", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "trust", "label": "trust", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "consent", "label": "consent", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "protection", "label": "protection", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "transparency", "label": "transparency", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "agency", "label": "agency", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "alignment", "label": "alignment", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ethical", "label": "ethical", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "moral", "label": "moral", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "principled", "label": "principled", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "responsibility", "label": "responsibility", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "risk", "label": "risk", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "auditable", "label": "auditable", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "bias", "label": "bias", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "expectancy", "label": "expectancy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "intelligence", "label": "intelligence", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "public", "label": "public", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "social", "label": "social", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "technical", "label": "technical", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "innovative", "label": "innovative", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "democratic", "label": "democratic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "privacy", "label": "privacy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "analytical", "label": "analytical", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "awareness", "label": "awareness", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "intention", "label": "intention", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "intuitive", "label": "intuitive", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "augmentative", "label": "augmentative", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "autonomous", "label": "autonomous", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "cognitive", "label": "cognitive", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "competency", "label": "competency", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "focused", "label": "focused", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "growth", "label": "growth", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "impact", "label": "impact", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "knowledge", "label": "knowledge", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "legal", "label": "legal", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "liablility", "label": "liablility", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "safety", "label": "safety", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "autonomy", "label": "autonomy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "control", "label": "control", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "decisive", "label": "decisive", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "explainability", "label": "explainability", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "explicit", "label": "explicit", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "informative", "label": "informative", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "bureaucratic", "label": "bureaucratic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "discretion", "label": "discretion", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "collaborative", "label": "collaborative", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "functioning", "label": "functioning", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "potential", "label": "potential", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "smart", "label": "smart", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "capability", "label": "capability", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "organizational", "label": "organizational", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "performance", "label": "performance", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "sociotechnical", "label": "sociotechnical", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "operational", "label": "operational", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "productivity", "label": "productivity", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "dignity", "label": "dignity", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "harm", "label": "harm", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "human-in-the-loop", "label": "human-in-the-loop", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "political", "label": "political", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "judicial", "label": "judicial", "shape": "dot", "size": 10}]);
+                  edges = new vis.DataSet([{"from": "accountable", "to": "affective", "width": 1}, {"from": "accountable", "to": "confidence", "width": 1}, {"from": "accountable", "to": "normative", "width": 1}, {"from": "accountable", "to": "rational", "width": 1}, {"from": "accountable", "to": "trust", "width": 1}, {"from": "affective", "to": "confidence", "width": 1}, {"from": "affective", "to": "normative", "width": 1}, {"from": "affective", "to": "rational", "width": 1}, {"from": "affective", "to": "trust", "width": 1}, {"from": "confidence", "to": "normative", "width": 1}, {"from": "confidence", "to": "rational", "width": 1}, {"from": "confidence", "to": "trust", "width": 1}, {"from": "normative", "to": "rational", "width": 1}, {"from": "normative", "to": "trust", "width": 1}, {"from": "rational", "to": "trust", "width": 1}, {"from": "trust", "to": "consent", "width": 1}, {"from": "trust", "to": "protection", "width": 1}, {"from": "trust", "to": "transparency", "width": 1}, {"from": "agency", "to": "alignment", "width": 1}, {"from": "agency", "to": "ethical", "width": 1}, {"from": "agency", "to": "moral", "width": 1}, {"from": "agency", "to": "principled", "width": 1}, {"from": "agency", "to": "responsibility", "width": 1}, {"from": "agency", "to": "risk", "width": 1}, {"from": "alignment", "to": "moral", "width": 1}, {"from": "alignment", "to": "principled", "width": 1}, {"from": "ethical", "to": "auditable", "width": 1}, {"from": "ethical", "to": "bias", "width": 1}, {"from": "ethical", "to": "expectancy", "width": 1}, {"from": "ethical", "to": "intelligence", "width": 3}, {"from": "ethical", "to": "moral", "width": 1}, {"from": "ethical", "to": "principled", "width": 3}, {"from": "ethical", "to": "public", "width": 4}, {"from": "ethical", "to": "responsibility", "width": 2}, {"from": "ethical", "to": "risk", "width": 1}, {"from": "ethical", "to": "social", "width": 2}, {"from": "ethical", "to": "technical", "width": 1}, {"from": "ethical", "to": "transparency", "width": 2}, {"from": "moral", "to": "principled", "width": 2}, {"from": "principled", "to": "public", "width": 1}, {"from": "principled", "to": "responsibility", "width": 1}, {"from": "responsibility", "to": "innovative", "width": 1}, {"from": "responsibility", "to": "public", "width": 1}, {"from": "responsibility", "to": "risk", "width": 1}, {"from": "risk", "to": "bias", "width": 1}, {"from": "risk", "to": "democratic", "width": 1}, {"from": "risk", "to": "intelligence", "width": 2}, {"from": "risk", "to": "privacy", "width": 1}, {"from": "risk", "to": "public", "width": 1}, {"from": "analytical", "to": "awareness", "width": 1}, {"from": "analytical", "to": "intelligence", "width": 1}, {"from": "analytical", "to": "intention", "width": 1}, {"from": "analytical", "to": "intuitive", "width": 2}, {"from": "awareness", "to": "intention", "width": 1}, {"from": "intelligence", "to": "auditable", "width": 1}, {"from": "intelligence", "to": "augmentative", "width": 1}, {"from": "intelligence", "to": "autonomous", "width": 1}, {"from": "intelligence", "to": "cognitive", "width": 1}, {"from": "intelligence", "to": "competency", "width": 1}, {"from": "intelligence", "to": "democratic", "width": 1}, {"from": "intelligence", "to": "focused", "width": 1}, {"from": "intelligence", "to": "growth", "width": 1}, {"from": "intelligence", "to": "impact", "width": 1}, {"from": "intelligence", "to": "intuitive", "width": 1}, {"from": "intelligence", "to": "knowledge", "width": 2}, {"from": "intelligence", "to": "legal", "width": 2}, {"from": "intelligence", "to": "liablility", "width": 1}, {"from": "intelligence", "to": "privacy", "width": 2}, {"from": "intelligence", "to": "public", "width": 1}, {"from": "intelligence", "to": "safety", "width": 1}, {"from": "intelligence", "to": "social", "width": 1}, {"from": "augmentative", "to": "autonomous", "width": 1}, {"from": "autonomy", "to": "cognitive", "width": 1}, {"from": "autonomy", "to": "control", "width": 1}, {"from": "autonomy", "to": "decisive", "width": 1}, {"from": "cognitive", "to": "growth", "width": 1}, {"from": "decisive", "to": "explainability", "width": 1}, {"from": "decisive", "to": "explicit", "width": 1}, {"from": "decisive", "to": "public", "width": 2}, {"from": "bias", "to": "transparency", "width": 1}, {"from": "transparency", "to": "consent", "width": 1}, {"from": "transparency", "to": "informative", "width": 1}, {"from": "transparency", "to": "protection", "width": 1}, {"from": "transparency", "to": "public", "width": 2}, {"from": "bureaucratic", "to": "discretion", "width": 1}, {"from": "bureaucratic", "to": "public", "width": 1}, {"from": "discretion", "to": "public", "width": 3}, {"from": "public", "to": "collaborative", "width": 1}, {"from": "public", "to": "expectancy", "width": 1}, {"from": "public", "to": "explainability", "width": 1}, {"from": "public", "to": "explicit", "width": 1}, {"from": "public", "to": "functioning", "width": 1}, {"from": "public", "to": "informative", "width": 1}, {"from": "public", "to": "potential", "width": 1}, {"from": "public", "to": "smart", "width": 1}, {"from": "public", "to": "social", "width": 2}, {"from": "capability", "to": "organizational", "width": 1}, {"from": "capability", "to": "performance", "width": 1}, {"from": "organizational", "to": "performance", "width": 1}, {"from": "organizational", "to": "sociotechnical", "width": 1}, {"from": "performance", "to": "operational", "width": 1}, {"from": "growth", "to": "productivity", "width": 1}, {"from": "competency", "to": "knowledge", "width": 1}, {"from": "consent", "to": "protection", "width": 1}, {"from": "explainability", "to": "explicit", "width": 1}, {"from": "explainability", "to": "legal", "width": 1}, {"from": "explainability", "to": "sociotechnical", "width": 1}, {"from": "democratic", "to": "privacy", "width": 1}, {"from": "privacy", "to": "impact", "width": 1}, {"from": "dignity", "to": "harm", "width": 1}, {"from": "dignity", "to": "social", "width": 1}, {"from": "harm", "to": "social", "width": 1}, {"from": "social", "to": "human-in-the-loop", "width": 1}, {"from": "social", "to": "liablility", "width": 1}, {"from": "social", "to": "political", "width": 1}, {"from": "social", "to": "safety", "width": 1}, {"from": "social", "to": "smart", "width": 1}, {"from": "social", "to": "technical", "width": 1}, {"from": "legal", "to": "judicial", "width": 1}, {"from": "liablility", "to": "safety", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
