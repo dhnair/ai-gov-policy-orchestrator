@@ -74,6 +74,15 @@ def copy_assets():
         if Path(src).exists():
             shutil.copy2(Path(src), dest_dir / dest)
 
+    # Also copy the generated lib folder if pyvis created one
+    generated_lib = Path("lib")
+    if generated_lib.exists():
+        if (dest_dir / "lib").exists():
+            shutil.rmtree(dest_dir / "lib") # Clear old one
+        shutil.copytree(generated_lib, dest_dir / "lib")
+        print("   [+] Moved generated 'lib' to app/assets/lib")
+
+
 def main():
     print_step("Starting AI-Gov Framework Pipeline (Resilient Mode)...")
 

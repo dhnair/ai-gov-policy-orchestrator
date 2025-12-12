@@ -1,61 +1,102 @@
 import os
-import PyPDF2
-from vector_store import PolicyKnowledgeBase
+import chromadb
+from chromadb.config import Settings
+from PyPDF2 import PdfReader
+from PyPDF2.errors import PdfReadError
 
-class PolicyIngestor:
-    """
-    Reads official government PDFs and stores them in the Vector DB.
-    Implements the 'Canonical Document Store' requirement [Chapter 4.2].
-    """
-    def __init__(self, pdf_folder="./data/raw_policies"):
-        self.pdf_folder = pdf_folder
-        self.kb = PolicyKnowledgeBase()
-        
-        # Ensure the folder exists
-        if not os.path.exists(self.pdf_folder):
-            os.makedirs(self.pdf_folder)
-            print(f">>> Created folder '{self.pdf_folder}'. Please put PDF files here!")
+# --- CONFIGURATION ---
+POLICY_FOLDER = "data/raw_policies"
+DB_PATH = "data/chroma_db"
+COLLECTION_NAME = "policy_knowledge_base"
 
-    def ingest_all(self):
-        print(f"\n>>> Scanning '{self.pdf_folder}' for policies...")
-        
-        files = [f for f in os.listdir(self.pdf_folder) if f.endswith(".pdf")]
-        
-        if not files:
-            print("No PDFs found! Add some .pdf files to the folder and run this again.")
-            return
+def ingest_policies():
+    print(f">>> Knowledge Base loading from {DB_PATH}")
+    
+    # Initialize ChromaDB
+    chroma_client = chromadb.PersistentClient(path=DB_PATH)
+    collection = chroma_client.get_or_create_collection(name=COLLECTION_NAME)
 
-        for filename in files:
-            self._process_pdf(filename)
+    print(f"\n>>> Scanning '{POLICY_FOLDER}' for policies...")
+    
+    if not os.path.exists(POLICY_FOLDER):
+        print(f"Error: Policy folder '{POLICY_FOLDER}' does not exist.")
+        return
 
-    def _process_pdf(self, filename):
-        file_path = os.path.join(self.pdf_folder, filename)
-        print(f"Processing: {filename}...")
+    files = [f for f in os.listdir(POLICY_FOLDER) if f.lower().endswith(".pdf")]
+    print(f"Found {len(files)} PDFs. Starting ingestion...")
+
+    success_count = 0
+    fail_count = 0
+
+    for filename in files:
+        file_path = os.path.join(POLICY_FOLDER, filename)
         
         try:
-            # 1. Read the PDF
-            text_content = ""
-            with open(file_path, "rb") as f:
-                reader = PyPDF2.PdfReader(f)
+            print(f"Processing: {filename}...", end="", flush=True)
+            
+            # 1. Read PDF (with error handling)
+            try:
+                # strict=False allows PyPDF2 to ignore minor formatting errors
+                reader = PdfReader(file_path, strict=False)
+                text = ""
                 for page in reader.pages:
-                    text_content += page.extract_text() + "\n"
+                    extracted = page.extract_text()
+                    if extracted:
+                        text += extracted + "\n"
             
-            # 2. Chunking (Simple version: split by paragraphs or strict length)
-            # For this prototype, we'll index the whole text (or first 1000 chars if huge)
-            # In production, use 'RecursiveCharacterTextSplitter' from LangChain
-            searchable_chunk = text_content[:2000] 
+            except (PdfReadError, ValueError) as e:
+                print(f" ❌ Corrupt PDF (EOF/Format Error). Skipping.")
+                fail_count += 1
+                continue
+            except Exception as e:
+                print(f" ❌ Unknown Error: {e}")
+                fail_count += 1
+                continue
+
+            # 2. Validation (Skip empty files)
+            if not text or len(text) < 50:
+                print(f" ⚠️  Skipped (No readable text found).")
+                fail_count += 1
+                continue
+
+            # 3. Chunking (Simple splitting by paragraphs or size)
+            # For a real system, use a recursive character splitter (e.g., from LangChain)
+            # Here we keep it simple: 1000 char chunks with overlap
+            chunk_size = 1000
+            overlap = 100
+            chunks = []
             
-            # 3. Add to Knowledge Base
-            self.kb.add_policy(
-                policy_text=searchable_chunk,
-                policy_id=filename,
-                metadata={"source": filename, "type": "official_document"}
+            for i in range(0, len(text), chunk_size - overlap):
+                chunk = text[i:i + chunk_size]
+                if len(chunk) > 50: # Only keep substantial chunks
+                    chunks.append(chunk)
+
+            if not chunks:
+                print(f" ⚠️  No valid chunks created.")
+                fail_count += 1
+                continue
+
+            # 4. Add to Vector DB
+            # We use filename + index as the unique ID
+            ids = [f"{filename}_chunk_{i}" for i in range(len(chunks))]
+            metadatas = [{"source": filename, "chunk_index": i} for i in range(len(chunks))]
+
+            collection.upsert(
+                documents=chunks,
+                metadatas=metadatas,
+                ids=ids
             )
-            print(f"   [+] Indexed {len(text_content)} characters.")
             
+            print(f" ✅ Indexed {len(chunks)} chunks.")
+            success_count += 1
+
         except Exception as e:
-            print(f"   [!] Error processing {filename}: {e}")
+            print(f"\n❌ Critical Error processing {filename}: {e}")
+            fail_count += 1
+
+    print(f"\n>>> Ingestion Complete.")
+    print(f"    Success: {success_count}")
+    print(f"    Failed:  {fail_count}")
 
 if __name__ == "__main__":
-    ingestor = PolicyIngestor()
-    ingestor.ingest_all()
+    ingest_policies()
