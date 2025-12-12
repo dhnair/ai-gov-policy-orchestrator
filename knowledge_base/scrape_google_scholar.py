@@ -1,4 +1,5 @@
 import os
+import sys
 import pandas as pd
 from serpapi import GoogleSearch
 from dotenv import load_dotenv
@@ -58,6 +59,8 @@ def scrape_scholar():
 
     except Exception as e:
         print(f"❌ Critical Error during scraping: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     scrape_scholar()
